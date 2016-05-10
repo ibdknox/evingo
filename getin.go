@@ -6,8 +6,13 @@ import (
 
 type node interface {
 	String() string
-	Children() []node
+	Children() []attribute
 	Lookup(string) (node, bool)
+}
+
+type attribute struct {
+	name  string
+	value node
 }
 
 type mapnode struct {
@@ -23,14 +28,12 @@ func (m mapnode) String() string {
 	return result
 }
 
-func (m mapnode) Children() []node {
-	keys := make([]node, len(m.m))
-
-	i := 0
-	for _, v := range m.m {
-		keys[i] = v
+func (m mapnode) Children() []attribute {
+	var result []attribute
+	for k, v := range m.m {
+		result = append(result, attribute{k, v})
 	}
-	return keys
+	return result
 }
 
 func (m mapnode) Lookup(key string) (node, bool) {
@@ -54,8 +57,12 @@ func (m setnode) String() string {
 	return result
 }
 
-func (m setnode) Children() []node {
-	return m.m
+func (m setnode) Children() []attribute {
+	var result []attribute
+	for _, k := range m.m {
+		result = append(result, attribute{"", k})
+	}
+	return result
 }
 
 //does this have a lookup
@@ -71,7 +78,7 @@ func (m stringnode) String() {
 	return
 }
 
-func (m stringnode) Children() []node {
+func (m stringnode) Children() []attribute {
 	return nil
 
 }
