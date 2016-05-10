@@ -74,8 +74,8 @@ type stringnode struct {
 	s string
 }
 
-func (m stringnode) String() {
-	return
+func (m stringnode) String() string {
+	return m.s
 }
 
 func (m stringnode) Children() []attribute {
