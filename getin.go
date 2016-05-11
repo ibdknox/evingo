@@ -37,8 +37,8 @@ func (m mapnode) Children() []attribute {
 }
 
 func (m mapnode) Lookup(key string) (node, bool) {
-	v := m.m[key]
-	if v != nil {
+	v, ok := m.m[key]
+	if ok {
 		return v, true
 	}
 	return nil, false
@@ -103,11 +103,10 @@ func (m intnode) Lookup(key string) (node, bool) {
 	return nil, false
 }
 
-// status?
 func insert(n node, path []string, value node) {
 	h := n.(*mapnode)
-	for _, i := range path[:len(path)-1] {
-		z, ok := n.Lookup(i)
+	for _, i := range path[:(len(path) - 1)] {
+		z, ok := h.Lookup(i)
 		if !ok {
 			m := &mapnode{make(map[string]node)}
 			h.m[i] = m
