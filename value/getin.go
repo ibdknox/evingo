@@ -5,22 +5,22 @@ import (
 	"strconv"
 )
 
-type node interface {
+type Node interface {
 	String() string
 	Children() []attribute
-	Lookup(string) (node, bool)
+	Lookup(string) (Node, bool)
 }
 
 type attribute struct {
 	name  string
-	value node
+	value Node
 }
 
-type mapnode struct {
-	m map[string]node
+type Mapnode struct {
+	m map[string]Node
 }
 
-func (m mapnode) String() string {
+func (m Mapnode) String() string {
 	result := "{"
 	for k, v := range m.m {
 		result += k + "," + v.String()
@@ -29,7 +29,7 @@ func (m mapnode) String() string {
 	return result
 }
 
-func (m mapnode) Children() []attribute {
+func (m Mapnode) Children() []attribute {
 	var result []attribute
 	for k, v := range m.m {
 		result = append(result, attribute{k, v})
@@ -37,7 +37,7 @@ func (m mapnode) Children() []attribute {
 	return result
 }
 
-func (m mapnode) Lookup(key string) (node, bool) {
+func (m Mapnode) Lookup(key string) (Node, bool) {
 	v, ok := m.m[key]
 	if ok {
 		return v, true
@@ -45,11 +45,11 @@ func (m mapnode) Lookup(key string) (node, bool) {
 	return nil, false
 }
 
-type setnode struct {
-	m []node
+type Setnode struct {
+	m []Node
 }
 
-func (m setnode) String() string {
+func (m Setnode) String() string {
 	result := "{"
 	for _, k := range m.m {
 		result += k.String() + ","
@@ -58,7 +58,7 @@ func (m setnode) String() string {
 	return result
 }
 
-func (m setnode) Children() []attribute {
+func (m Setnode) Children() []attribute {
 	var result []attribute
 	for _, k := range m.m {
 		result = append(result, attribute{"", k})
@@ -67,59 +67,46 @@ func (m setnode) Children() []attribute {
 }
 
 //does this have a lookup
-func (m setnode) Lookup(key string) (node, bool) {
+func (m Setnode) Lookup(key string) (Node, bool) {
 	return nil, false
 }
 
-type stringnode struct {
-	s string
+type Valnode struct {
+	v Value
 }
 
-func (m stringnode) String() string {
-	return m.s
+func NewValnode(v Value) Node {
+	return &Valnode{v}
 }
 
-func (m stringnode) Children() []attribute {
-	return nil
-
+func (v Valnode) String() string {
+	return v.String()
 }
 
-func (m stringnode) Lookup(key string) (node, bool) {
-	return nil, false
-}
-
-type intnode struct {
-	v int64
-}
-
-func (m intnode) String() string {
-	return strconv.FormatInt(m.v, 10)
-}
-
-func (m intnode) Children() []node {
+func (v Valnode) Children() []attribute {
 	return nil
 }
 
-func (m intnode) Lookup(key string) (node, bool) {
+func (v Valnode) Lookup(key string) (Node, bool) {
 	return nil, false
 }
 
-func insert(n node, path []string, value node) {
-	h := n.(*mapnode)
+func Insert(n Node, path []string, value Node) {
+	h := n.(*Mapnode)
 	for _, i := range path[:(len(path) - 1)] {
 		z, ok := h.Lookup(i)
 		if !ok {
-			m := &mapnode{make(map[string]node)}
+			m := &Mapnode{make(map[string]Node)}
 			h.m[i] = m
 			h = m
 		} else {
-			h = z.(*mapnode)
+			h = z.(*Mapnode)
 		}
 	}
 	h.m[path[len(path)-1]] = value
 }
 
-func lookup(n node, path []string) (node, bool) {
+func lookup(n Node, path []string) (Node, bool) {
 	var ok bool
 	for _, i := range path {
 		n, ok = n.Lookup(i)
@@ -130,20 +117,20 @@ func lookup(n node, path []string) (node, bool) {
 	return n, true
 }
 
-func tree2dot(n node) string {
+func Tree2dot(n Node) string {
 	count := 0
-	nodes := make(map[node]string)
+	nodes := make(map[Node]string)
 	var result bytes.Buffer
 	result.WriteString("digraph foo {\n")
-	var translate func(n node) string
-	translate = func(n node) string {
+	var translate func(n Node) string
+	translate = func(n Node) string {
 		var k string
 		var ok bool
 		if k, ok = nodes[n]; !ok {
 			k = "n" + strconv.Itoa(count)
 			count++
 			switch n.(type) {
-			case *mapnode, *setnode:
+			case *Mapnode, *Setnode:
 				nodes[n] = k
 				for _, v := range n.Children() {
 					result.WriteString("  " + k + "->" + translate(v.value) + " [label=\"" + v.name + "\"]\n")
@@ -157,4 +144,8 @@ func tree2dot(n node) string {
 	translate(n)
 	result.WriteString("}\n")
 	return result.String()
+}
+
+func NewMapNode() Node {
+	return &Mapnode{make(map[string]Node)}
 }

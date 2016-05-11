@@ -16,8 +16,8 @@ func main() {
 	}
 
 	// genericize
-	tree := &value.mapnode{make(map[string]node)}
-	value.insert(tree, []string{"a", "b", "c"}, value.stringnode{"d"})
-	value.insert(tree, []string{"a", "b", "z"}, value.stringnode{"e"})
-	fmt.Println(value.tree2dot(tree))
+	tree := value.NewMapNode()
+	value.Insert(tree, []string{"a", "b", "c"}, value.NewValnode(value.NewText("d")))
+	value.Insert(tree, []string{"a", "b", "z"}, value.NewValnode(value.NewText("e")))
+	fmt.Println(value.Tree2dot(tree))
 }

@@ -49,19 +49,12 @@ type Cuckoo struct {
 	ngrow    int
 	nshrink  int
 	nrehash  int
-	// To avoid allocating a bitmap for bucket usage, we use the default value of key (which is 0) to indicate that the entry is not used.
-	// Instead of forbidding items with key==0 (and exposing an implementation quirk to the user), we use zeroValue and zeroIsSet to store
-	// an item with 0 key. Hence, there is no key/value with key==0 within buckets and any bucket with key==0 is empty.
-	zeroValue Value // Value of the item with Key==0 is placed here.
-	zeroIsSet bool  // true if there is an item with Key==0.
-	stash     stash // stash, Insert's last resort before doing a grow
-	eitem     bool  // evacuated leftover item,
-	ekey      Key   // ...and its key.
-	eval      Value
-	seed      [nhash]hash // seed for hash functions.
+	stash    stash // stash, Insert's last resort before doing a grow
+	eitem    bool  // evacuated leftover item,
+	ekey     Key   // ...and its key.
+	eval     Value
+	seed     [nhash]hash // seed for hash functions.
 }
-
-var zero Value
 
 func alloc(n int) []bucket {
 	return make([]bucket, n, n)
@@ -143,14 +136,6 @@ func (c *Cuckoo) shuffle(h *[nhash]hash, r int64) {
 // Search tries to retrieve the value associated with the given key.
 // If no such item is found, ok is set to false.
 func (c *Cuckoo) Search(k Key) (v Value, ok bool) {
-	if k.Hash() == 0 {
-		if c.zeroIsSet == false {
-			return
-		}
-
-		return c.zeroValue, true
-	}
-
 	// TODO(utkan): SSE2/AVX2 version
 
 	var h [nhash]hash
@@ -191,8 +176,6 @@ func (c *Cuckoo) Delete(k Key) {
 
 func (c *Cuckoo) tryDelete(k Key) bool {
 	if k.Hash() == 0 {
-		c.zeroIsSet = false
-		c.zeroValue = zero
 		c.nentries--
 		return true
 	}
@@ -204,8 +187,8 @@ func (c *Cuckoo) tryDelete(k Key) bool {
 		for i, key := range &b.keys {
 			if k == key {
 				c.nentries--
-				b.keys[i] = 0
-				b.vals[i] = zero
+				b.keys[i] = nil
+				b.vals[i] = nil
 				return true
 			}
 		}
@@ -213,8 +196,8 @@ func (c *Cuckoo) tryDelete(k Key) bool {
 
 	for i, key := range c.stash.keys {
 		if k == key {
-			c.stash.keys[i] = 0
-			c.stash.vals[i] = zero
+			c.stash.keys[i] = nil
+			c.stash.vals[i] = nil
 			c.nentries--
 			return true
 		}
@@ -226,13 +209,6 @@ func (c *Cuckoo) tryDelete(k Key) bool {
 // Insert adds given key/value item into the hash map.
 // If an item with key k already exists, it will be replaced.
 func (c *Cuckoo) Insert(k Key, v Value) {
-	if k == 0 {
-		c.zeroIsSet = true
-		c.zeroValue = v
-		c.nentries++
-		return
-	}
-
 	for {
 		if c.tryInsert(k, v) {
 			return
@@ -293,7 +269,7 @@ func (c *Cuckoo) tryUpdate(k Key, v Value, h *[nhash]hash) (updated bool, freeSl
 				return
 			}
 
-			if freeSlot == false && key == 0 {
+			if freeSlot == false && key == nil {
 				ibucket = int(bi)
 				index = i
 				freeSlot = true
@@ -323,8 +299,6 @@ func (c *Cuckoo) addAt(k Key, v Value, ibucket int, index int) {
 // tryAdd also omits the slot given by the parameter except, when ignore is set to true.
 func (c *Cuckoo) tryAdd(k Key, v Value, h *[nhash]hash, ignore bool, except hash) (added bool) {
 	if k.Hash() == 0 {
-		c.zeroIsSet = true
-		c.zeroValue = v
 		return
 	}
 
@@ -337,7 +311,7 @@ func (c *Cuckoo) tryAdd(k Key, v Value, h *[nhash]hash, ignore bool, except hash
 		b := &c.buckets[bi]
 
 		for i, key := range &b.keys {
-			if key == 0 {
+			if key == nil {
 				b.keys[i] = k
 				b.vals[i] = v
 
@@ -382,7 +356,7 @@ func (c *Cuckoo) tryGreedyAdd(k Key, v Value, h *[nhash]hash) (added bool) {
 
 	// try to insert into stash as a last resort
 	for i, key := range c.stash.keys {
-		if key == 0 {
+		if key == nil {
 			c.stash.keys[i] = k
 			c.stash.vals[i] = v
 			return true
@@ -448,7 +422,7 @@ func (c *Cuckoo) tryGrow(δ int) (ok bool) {
 	for bi := range c.buckets {
 		b := c.buckets[bi]
 		for i, k := range &b.keys {
-			if k == 0 {
+			if k == nil {
 				continue
 			}
 
@@ -478,21 +452,17 @@ func (c *Cuckoo) tryGrow(δ int) (ok bool) {
 
 // ForRange loops over all (key,value) pairs in the hash map and calls f for each.
 func (c *Cuckoo) ForRange(f func(Key, Value)) {
-	if c.zeroIsSet {
-		f(0, c.zeroValue)
-	}
-
 	for bi := range c.buckets {
 		b := &c.buckets[bi]
 		for i, key := range &b.keys {
-			if key != 0 {
+			if key != nil {
 				f(key, b.vals[i])
 			}
 		}
 	}
 
 	for i, key := range c.stash.keys {
-		if key != 0 {
+		if key != nil {
 			f(key, c.stash.vals[i])
 		}
 	}

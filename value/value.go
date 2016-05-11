@@ -10,43 +10,47 @@ type Value interface {
 	String() string
 }
 
-type uuid struct {
+type Uuid struct {
 	top    uint32
 	bottom uint64
 }
 
-func (u uuid) Equal(v Value) bool {
-	if u2, ok := v.(uuid); ok {
+func (u Uuid) Equal(v Value) bool {
+	if u2, ok := v.(Uuid); ok {
 		return (u.top == u2.top) && (u.bottom == u2.bottom)
 	}
 	return false
 }
 
-func (u uuid) Hash() uint32 {
+func (u Uuid) Hash() uint32 {
 	return 0
 }
 
-func (u uuid) String() string {
+func (u Uuid) String() string {
 	return ""
 }
 
-type text struct {
+type Text struct {
 	s string
 }
 
-func (t text) Equal(v Value) bool {
-	if t2, ok := v.(text); ok {
+func (t Text) Equal(v Value) bool {
+	if t2, ok := v.(Text); ok {
 		return t.s == t2.s
 	}
 	return false
 }
 
-func (t text) Hash() uint32 {
+func (t Text) Hash() uint32 {
 	return 0
 }
 
-func (t text) String() string {
+func (t Text) String() string {
 	return ""
+}
+
+func NewText(s string) Value {
+	return &Text{s}
 }
 
 type number struct {
