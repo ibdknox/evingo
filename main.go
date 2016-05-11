@@ -25,7 +25,7 @@ func tree2dot(n node) string {
 			case *mapnode, *setnode:
 				nodes[n] = k
 				for _, v := range n.Children() {
-					result.WriteString("  " + k + "->" + translate(v.value) + "\n")
+					result.WriteString("  " + k + "->" + translate(v.value) + " [label=\"" + v.name + "\"]\n")
 				}
 			default:
 				result.WriteString("  " + k + " [label=\"" + n.String() + "\"]\n")
@@ -48,6 +48,6 @@ func main() {
 	// genericize
 	tree := &mapnode{make(map[string]node)}
 	insert(tree, []string{"a", "b", "c"}, stringnode{"d"})
-	insert(tree, []string{"a", "b"}, stringnode{"e"})
+	insert(tree, []string{"a", "b", "z"}, stringnode{"e"})
 	fmt.Println(tree2dot(tree))
 }

@@ -105,7 +105,7 @@ func (m intnode) Lookup(key string) (node, bool) {
 
 func insert(n node, path []string, value node) {
 	h := n.(*mapnode)
-	for _, i := range path[:len(path)] {
+	for _, i := range path[:(len(path) - 1)] {
 		z, ok := h.Lookup(i)
 		if !ok {
 			m := &mapnode{make(map[string]node)}
