@@ -80,7 +80,7 @@ func NewValnode(v Value) Node {
 }
 
 func (v Valnode) String() string {
-	return v.String()
+	return v.v.String()
 }
 
 func (v Valnode) Children() []attribute {
