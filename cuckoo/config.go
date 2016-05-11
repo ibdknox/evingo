@@ -15,6 +15,10 @@
 
 package cuckoo
 
+import (
+	"github.com/witheve/evingo/value"
+)
+
 // configurable variables (for tuning the algorithm)
 const (
 	bshift                = 3   // Number of items in a bucket is 1<<bshift.
@@ -32,7 +36,7 @@ const (
 )
 
 // Key must be an integer-type.
-type Key main.Value
+type Key value.Value
 
 // Value can be anything, replace this to match your needs (not using unsafe.Pointer to avoid the overhead to store additional pointer or interface{} which comes with a worse overhead).
 type Value interface{}

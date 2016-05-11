@@ -117,7 +117,7 @@ func (c *Cuckoo) Len() int {
 
 // default hash function
 func defaultHash(k Key, seed hash) hash {
-	return hash(xx_32(uint32(k), uint32(seed)))
+	return hash(xx_32(uint32(k.Hash()), uint32(seed)))
 }
 
 func (c *Cuckoo) dohash(key Key, h *[nhash]hash) {
@@ -143,7 +143,7 @@ func (c *Cuckoo) shuffle(h *[nhash]hash, r int64) {
 // Search tries to retrieve the value associated with the given key.
 // If no such item is found, ok is set to false.
 func (c *Cuckoo) Search(k Key) (v Value, ok bool) {
-	if k == 0 {
+	if k.Hash() == 0 {
 		if c.zeroIsSet == false {
 			return
 		}
@@ -190,7 +190,7 @@ func (c *Cuckoo) Delete(k Key) {
 }
 
 func (c *Cuckoo) tryDelete(k Key) bool {
-	if k == 0 {
+	if k.Hash() == 0 {
 		c.zeroIsSet = false
 		c.zeroValue = zero
 		c.nentries--
@@ -322,7 +322,7 @@ func (c *Cuckoo) addAt(k Key, v Value, ibucket int, index int) {
 // Similar to tryUpdate, but tryAdd assumes there is no item with key already.
 // tryAdd also omits the slot given by the parameter except, when ignore is set to true.
 func (c *Cuckoo) tryAdd(k Key, v Value, h *[nhash]hash, ignore bool, except hash) (added bool) {
-	if k == 0 {
+	if k.Hash() == 0 {
 		c.zeroIsSet = true
 		c.zeroValue = v
 		return

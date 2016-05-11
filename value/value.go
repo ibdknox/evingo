@@ -1,4 +1,4 @@
-package main
+package value
 
 import (
 	"github.com/witheve/evingo/decimal"

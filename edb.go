@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/witheve/evingo/cuckoo"
+    "github.com/witheve/evingo/value"
 )
 
 type edb struct {
