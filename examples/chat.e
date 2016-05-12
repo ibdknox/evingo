@@ -16,13 +16,16 @@ draw messages
       parent: "{chat-pane}-chat-messages"
       class: "chat-message"
       children:
-        #div class: "chat-user" text: "{name}"
-        #div class: "chat-message"    text: "{message}"
+        #div class: "chat-user"    text: "{name}"
+        #div class: "chat-time"    text: "{time}"
+        #div class: "chat-message" text: "{message}"
 
 handle chat keydowns
   #chat-input-keydown value info-channel: channel
   #keyboard pressed: "enter"
   #user name
+  #time hours minutes
+  printTime = "{hours}:{minutes}"
   add forever
     #message 
       name
