@@ -60,7 +60,7 @@ func (t Text) Hash() uint32 {
 }
 
 func (t Text) String() string {
-	return ""
+	return t.s
 }
 
 func (t Text) Serialize() (int, writer) {
@@ -102,6 +102,22 @@ func (n Number) Serialize() (int, writer) {
 	}
 }
 
+func NewNumberFromFloat(n float64) Value {
+	return &Number{decimal.NewFromFloat(n)}
+}
+func NewNumberFromInt(n int64) Value {
+	return &Number{decimal.New(n, 1)}
+}
+
+func NewNumberFromString(n string) Value {
+	var d, err = decimal.NewFromString(n)
+	if err != nil {
+		panic("Invalid decimal string: " + n)
+	}
+	return &Number{d}
+
+}
+
 type Boolean struct {
 	b bool
 }
@@ -114,19 +130,22 @@ func (b Boolean) Equal(v Value) bool {
 
 }
 
-func (n Boolean) Hash() uint32 {
-	if n.b {
+func (b Boolean) Hash() uint32 {
+	if b.b {
 		return 1
 	}
 	return 0
 }
 
-func (n Boolean) String() string {
-	if n.b {
+func (b Boolean) String() string {
+	if b.b {
 		return "true"
 	}
 	return "false"
+}
 
+func NewBoolean(b bool) Value {
+	return &Boolean{b}
 }
 
 func (b Boolean) Deserialize(source []byte, offset int) {
