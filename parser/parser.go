@@ -9,7 +9,22 @@ import (
   "unicode"
 )
 
+//-----------------------------------------------------
+// Tokens
+//-----------------------------------------------------
+
 type TokenType string
+
+type Token struct {
+	tokenType TokenType
+	value     string
+	line      int
+	char      int
+}
+
+func (t Token) String() string {
+	return fmt.Sprintf("{%v %v line %v ch %v}", t.tokenType, t.value, t.line, t.char)
+}
 
 const (
 	TAG           TokenType = "TAG"
@@ -31,21 +46,6 @@ const (
 	IDENTIFIER              = "IDENTIFIER"
 )
 
-type Token struct {
-	tokenType TokenType
-	value     string
-	line      int
-	char      int
-}
-
-func (t Token) String() string {
-	return fmt.Sprintf("{%v %v line %v ch %v}", t.tokenType, t.value, t.line, t.char)
-}
-
-func isWhiteSpace(ch rune) bool {
-	return ch == ' ' || ch == '\n' || ch == '\t'
-}
-
 var specials = map[rune]TokenType{
 	'#': TAG,
 	'@': NAME,
@@ -58,6 +58,22 @@ var specials = map[rune]TokenType{
 	'}': CLOSE_CURLY,
 }
 
+var keywords = map[string]TokenType{
+	"union":  UNION,
+	"choose": CHOOSE,
+	"end":    END,
+	"and":    AND,
+	"or":     OR,
+}
+
+//-----------------------------------------------------
+// Rune predicates
+//-----------------------------------------------------
+
+func isWhiteSpace(ch rune) bool {
+	return ch == ' ' || ch == '\n' || ch == '\t'
+}
+
 func isSpecialChar(ch rune) bool {
 	_, found := specials[ch]
 	return found
@@ -65,14 +81,6 @@ func isSpecialChar(ch rune) bool {
 
 func isIdentifierChar(ch rune) bool {
 	return !isWhiteSpace(ch) && !isSpecialChar(ch)
-}
-
-var keywords = map[string]TokenType{
-	"union":  UNION,
-	"choose": CHOOSE,
-	"end":    END,
-	"and":    AND,
-	"or":     OR,
 }
 
 func isKeyword(str string) bool {
@@ -99,12 +107,23 @@ func isDigitChar(ch rune) bool {
   return unicode.IsDigit(ch) || ch == '.'
 }
 
+//-----------------------------------------------------
+// Scanner
+//-----------------------------------------------------
+
 type Scanner struct {
 	str        string
 	line       int
 	offset     int
 	byteOffset int
 }
+
+type scanState struct {
+	state string
+}
+
+type ScanPredicate func(rune) bool
+type StatefulScanPredicate func(rune, *scanState) bool
 
 func (s *Scanner) _peek() (rune, bool, int) {
 	char, width := utf8.DecodeRuneInString(s.str[s.byteOffset:])
@@ -139,8 +158,6 @@ func (s *Scanner) eatWhiteSpace() {
 	}
 }
 
-type ScanPredicate func(rune) bool
-
 func (s *Scanner) eatWhile(pred ScanPredicate) string {
 	var curString bytes.Buffer
 	for char, ok := s.peek(); ok && pred(char); char, ok = s.peek() {
@@ -149,11 +166,6 @@ func (s *Scanner) eatWhile(pred ScanPredicate) string {
 	}
 	return curString.String()
 }
-
-type scanState struct {
-	state string
-}
-type StatefulScanPredicate func(rune, *scanState) bool
 
 func (s *Scanner) eatWhileState(pred StatefulScanPredicate) string {
 	var curString bytes.Buffer
@@ -168,6 +180,10 @@ func (s *Scanner) eatWhileState(pred StatefulScanPredicate) string {
 func NewScanner(str string) *Scanner {
 	return &Scanner{str, 1, 0, 0}
 }
+
+//-----------------------------------------------------
+// Lexing
+//-----------------------------------------------------
 
 func Lex(str string) []Token {
 	scanner := NewScanner(str)
@@ -213,6 +229,10 @@ func Lex(str string) []Token {
 	}
 	return tokens
 }
+
+//-----------------------------------------------------
+// Parsing
+//-----------------------------------------------------
 
 func ParseTokens(tokens []Token) {
 	var token Token
