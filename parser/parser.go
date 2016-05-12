@@ -214,14 +214,7 @@ func Lex(str string) []Token {
 	return tokens
 }
 
-type Fact struct {
-	entity    string
-	attribute string
-	value     string
-}
-
-func ParseTokens(tokens []Token) []Fact {
-	var facts []Fact
+func ParseTokens(tokens []Token) {
 	var token Token
 	tokenLen := len(tokens)
 	for ix := 0; ix < tokenLen; ix++ {
@@ -235,7 +228,6 @@ func ParseTokens(tokens []Token) []Fact {
 		fmt.Printf("line %v goes from %v to %v\n", line, startIx, ix)
 		fmt.Printf("%v\n\n", tokens[startIx:ix+1])
 	}
-	return facts
 }
 
 func ParseString(code string) {
