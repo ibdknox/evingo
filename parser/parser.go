@@ -92,7 +92,7 @@ func isStringChar(ch rune) bool {
 	return ch == '"'
 }
 
-func stringEater(ch rune, state *scanState) bool {
+func isStringCharStateful(ch rune, state *scanState) bool {
 	curState := state.state
 	if ch == '\\' {
 		state.state = "escaped"
@@ -197,7 +197,7 @@ func Lex(str string) []Token {
 			scanner.eatWhiteSpace()
 		case isStringChar(char):
       scanner.read()
-			str := scanner.eatWhileState(stringEater)
+			str := scanner.eatWhileState(isStringCharStateful)
 			tokens = append(tokens, Token{STRING, str, line, offset + 1})
       scanner.read()
 			// eat the string
