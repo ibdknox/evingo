@@ -1,12 +1,10 @@
 package main
 
 import (
-	"github.com/witheve/evingo/cuckoo"
 	"github.com/witheve/evingo/value"
 )
 
 type edb struct {
-	eav cuckoo.Cuckoo
 }
 
 type context struct {

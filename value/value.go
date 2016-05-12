@@ -4,15 +4,29 @@ import (
 	"github.com/witheve/evingo/decimal"
 )
 
+// we dont close over the value to avoid taking the closure, although
+// its not that bad here
+type writer func(Value, []byte, int)
+
 type Value interface {
 	Equal(Value) bool
 	Hash() uint32
 	String() string
+	Serialize() (int, writer)
+	Deserialize([]byte, int)
 }
 
 type Uuid struct {
 	top    uint32
 	bottom uint64
+}
+
+func (u Uuid) Serialize() (int, writer) {
+	return 12, func(v Value, target []byte, offset int) {
+	}
+}
+
+func (u Uuid) Deserialize(source []byte, offset int) {
 }
 
 func (u Uuid) Equal(v Value) bool {
@@ -49,6 +63,14 @@ func (t Text) String() string {
 	return t.s
 }
 
+func (t Text) Serialize() (int, writer) {
+	return 12, func(v Value, target []byte, offset int) {
+	}
+}
+
+func (t Text) Deserialize(source []byte, offset int) {
+}
+
 func NewText(s string) Value {
 	return &Text{s}
 }
@@ -72,18 +94,28 @@ func (n Number) String() string {
 	return n.d.String()
 }
 
+func (n Number) Deserialize(source []byte, offset int) {
+}
+
+func (n Number) Serialize() (int, writer) {
+	return 12, func(v Value, target []byte, offset int) {
+	}
+}
+
 func NewNumberFromFloat(n float64) Value {
 	return &Number{decimal.NewFromFloat(n)}
 }
 func NewNumberFromInt(n int64) Value {
 	return &Number{decimal.New(n, 1)}
 }
+
 func NewNumberFromString(n string) Value {
 	var d, err = decimal.NewFromString(n)
 	if err != nil {
 		panic("Invalid decimal string: " + n)
 	}
 	return &Number{d}
+
 }
 
 type Boolean struct {
@@ -114,4 +146,12 @@ func (b Boolean) String() string {
 
 func NewBoolean(b bool) Value {
 	return &Boolean{b}
+}
+
+func (b Boolean) Deserialize(source []byte, offset int) {
+}
+
+func (b Boolean) Serialize() (int, writer) {
+	return 12, func(v Value, target []byte, offset int) {
+	}
 }
