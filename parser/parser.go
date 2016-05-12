@@ -220,7 +220,7 @@ type Fact struct {
 	value     string
 }
 
-func Parse(tokens []Token) []Fact {
+func ParseTokens(tokens []Token) []Fact {
 	var facts []Fact
 	var token Token
 	tokenLen := len(tokens)
@@ -233,18 +233,21 @@ func Parse(tokens []Token) []Fact {
 			token = tokens[ix]
 		}
 		fmt.Printf("line %v goes from %v to %v\n", line, startIx, ix)
-		fmt.Printf("%v\n", tokens[startIx:ix+1])
+		fmt.Printf("%v\n\n", tokens[startIx:ix+1])
 	}
 	return facts
+}
+
+func ParseString(code string) {
+		tokens := Lex(code)
+		ParseTokens(tokens)
 }
 
 func ParseFile(path string) {
 	content, err := ioutil.ReadFile(path)
 	if err == nil {
 		code := string(content)
-		tokens := Lex(code)
-		Parse(tokens)
-		fmt.Println(tokens)
+    ParseString(code)
 	} else {
 		fmt.Printf(color.Error("Couldn't read file: %v"), path)
 	}
