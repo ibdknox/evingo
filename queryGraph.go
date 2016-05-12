@@ -188,7 +188,7 @@ func EntityAttributeEquals(attribute string, value *value.Value) EntityFilter {
 		if !ok || value == nil {
 			return false
 		}
-		return attrVal.Equal(*value)
+		return attrVal.Equals(*value)
 	}
 }
 
