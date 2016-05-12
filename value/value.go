@@ -9,8 +9,8 @@ import (
 type writer func(Value, []byte, int)
 
 type Value interface {
-	Equal(Value) bool
-	Hash() uint32
+	Equals(interface{}) bool
+	HashCode() uint32
 	String() string
 	Serialize() (int, writer)
 	Deserialize([]byte, int)
@@ -29,14 +29,14 @@ func (u Uuid) Serialize() (int, writer) {
 func (u Uuid) Deserialize(source []byte, offset int) {
 }
 
-func (u Uuid) Equal(v Value) bool {
+func (u Uuid) Equals(v interface{}) bool {
 	if u2, ok := v.(Uuid); ok {
 		return (u.top == u2.top) && (u.bottom == u2.bottom)
 	}
 	return false
 }
 
-func (u Uuid) Hash() uint32 {
+func (u Uuid) HashCode() uint32 {
 	return 0
 }
 
@@ -48,14 +48,14 @@ type Text struct {
 	s string
 }
 
-func (t Text) Equal(v Value) bool {
+func (t Text) Equals(v interface{}) bool {
 	if t2, ok := v.(Text); ok {
 		return t.s == t2.s
 	}
 	return false
 }
 
-func (t Text) Hash() uint32 {
+func (t Text) HashCode() uint32 {
 	return 0
 }
 
@@ -79,14 +79,14 @@ type Number struct {
 	d decimal.Decimal
 }
 
-func (n Number) Equal(v Value) bool {
+func (n Number) Equals(v interface{}) bool {
 	if t2, ok := v.(Number); ok {
 		return n.d == t2.d
 	}
 	return false
 }
 
-func (n Number) Hash() uint32 {
+func (n Number) HashCode() uint32 {
 	return 0
 }
 
@@ -122,7 +122,7 @@ type Boolean struct {
 	b bool
 }
 
-func (b Boolean) Equal(v Value) bool {
+func (b Boolean) Equals(v interface{}) bool {
 	if b2, ok := v.(Boolean); ok {
 		return b.b == b2.b
 	}
@@ -130,7 +130,7 @@ func (b Boolean) Equal(v Value) bool {
 
 }
 
-func (b Boolean) Hash() uint32 {
+func (b Boolean) HashCode() uint32 {
 	if b.b {
 		return 1
 	}
