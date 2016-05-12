@@ -89,7 +89,7 @@ func (n FactNode) String() string {
 	return "{e: \"" + n.entity + "\", a: \"" + n.attribute + "\", v: " + n.value.String() + "}"
 }
 
-func ReadFactsFromJson(raw []byte) []FactNode {
+func ReadFactsFromJson(raw []byte) *[]FactNode {
 	fmt.Println("reading facts", raw)
 	var parsed [][]interface{}
 	err := json.Unmarshal(raw, &parsed)
@@ -117,7 +117,7 @@ func ReadFactsFromJson(raw []byte) []FactNode {
 		facts = append(facts, *fact)
 	}
 
-	return facts
+	return &facts
 }
 
 type Entity struct {
@@ -133,7 +133,8 @@ func (entity Entity) String() string {
 	return result[:len(result)-2] + "}"
 }
 
-func FactsToEntities(facts []FactNode) *[]Entity {
+func FactsToEntities(factsPtr *[]FactNode) *[]Entity {
+	var facts = *factsPtr
 	var entityMap = make(map[string]*Entity)
 
 	for _, fact := range facts {

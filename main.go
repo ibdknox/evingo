@@ -6,21 +6,18 @@ import (
 	"github.com/witheve/evingo/parser"
 	"github.com/witheve/evingo/util/color"
 	"github.com/witheve/evingo/value"
+	"io/ioutil"
 	"os"
 	//"strings"
 )
 
+func panicOnError(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
 func doDotStuff() {
-	var s = "[[\"a\", \"attr1\", 7], [\"b\", \"attr1\", \"dog\"], [\"b\", \"attr2\", true]]"
-	var b = []byte(s)
-	fmt.Println(ReadFactsFromJson(b))
-
-	//scanner := bufio.NewScanner(os.Stdin)
-	//for scanner.Scan() {
-	//	line := scanner.Text()
-	//	_ = strings.Split(line, " ")
-	//}
-
 	// genericize
 	tree := value.NewMapNode()
 	value.Insert(tree, []string{"a", "b", "c"}, value.NewValnode(value.NewText("d")))
@@ -38,6 +35,7 @@ func main() {
 		fmt.Println("Here are the available commands:")
 		fmt.Printf("  - %s\n", color.Bright("dot"))
 		fmt.Printf("  - %s %s\n", color.Bright("parse"), color.Info("<file>"))
+		fmt.Printf("  - %s %s\n", color.Bright("parse"), color.Info("<file>"))
 	case args[1] == "dot":
 		doDotStuff()
 	case args[1] == "parse":
@@ -45,6 +43,31 @@ func main() {
 			parser.ParseFile(args[2])
 		} else {
 			fmt.Println(color.Error("Must provide a file to parse"))
+		}
+	case args[1] == "load":
+		if argsLen > 2 {
+			data, err := ioutil.ReadFile(args[2])
+			panicOnError(err)
+			var facts = ReadFactsFromJson(data)
+			fmt.Println("---FACTS---")
+			fmt.Println(facts)
+
+			var entities = FactsToEntities(facts)
+			fmt.Println("---ENTITIES---")
+			fmt.Println(entities)
+
+			var tagMap = GroupEntitiesByTag(entities)
+			fmt.Println("---TAG MAP---")
+			fmt.Println(tagMap)
+
+			//scanner := bufio.NewScanner(os.Stdin)
+			//for scanner.Scan() {
+			//	line := scanner.Text()
+			//	_ = strings.Split(line, " ")
+			//}
+
+		} else {
+			fmt.Println(color.Error("Must provide a file to load"))
 		}
 	}
 
