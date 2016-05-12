@@ -1,3 +1,9 @@
+//-----------------------------------------------------
+// Parser
+// This package takes a string or file and turns it
+// into an Eve program graph
+//-----------------------------------------------------
+
 package parser
 
 import (
@@ -146,6 +152,8 @@ func (s *Scanner) read() (rune, bool) {
 	case '\n':
 		s.line++
 		s.offset = 0
+    s.byteOffset += width
+    return char, ok
 	}
 	s.offset++
 	s.byteOffset += width
@@ -234,6 +242,21 @@ func Lex(str string) []Token {
 // Parsing
 //-----------------------------------------------------
 
+func parseLine(tokens []Token) {
+  if tokens[0].char == 0 {
+    var bytes bytes.Buffer
+    prevEnd := 0
+    for _, token := range tokens {
+      for i := 0; i < token.char - prevEnd; i++ {
+        bytes.WriteRune(' ')
+      }
+      bytes.WriteString(token.value)
+      prevEnd = token.char + len(token.value)
+    }
+    fmt.Println("header:", bytes.String())
+  }
+}
+
 func ParseTokens(tokens []Token) {
 	var token Token
 	tokenLen := len(tokens)
@@ -245,6 +268,7 @@ func ParseTokens(tokens []Token) {
 			ix++
 			token = tokens[ix]
 		}
+    parseLine(tokens[startIx:ix+1])
 		fmt.Printf("line %v goes from %v to %v\n", line, startIx, ix)
 		fmt.Printf("%v\n\n", tokens[startIx:ix+1])
 	}
