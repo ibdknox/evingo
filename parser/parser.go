@@ -25,11 +25,11 @@ type Token struct {
 	tokenType TokenType
 	value     string
 	line      int
-	char      int
+	offset      int
 }
 
 func (t Token) String() string {
-	return fmt.Sprintf("{%v %v line %v ch %v}", t.tokenType, t.value, t.line, t.char)
+	return fmt.Sprintf("{%v %v line %v ch %v}", t.tokenType, t.value, t.line, t.offset)
 }
 
 const (
@@ -238,6 +238,25 @@ func Lex(str string) []Token {
 	return tokens
 }
 
+type tokenIterator struct {
+  pos int
+  tokens []Token
+}
+
+func (iter *tokenIterator) peek() Token {
+  return iter.tokens[iter.pos + 1]
+}
+
+func (iter *tokenIterator) read() Token {
+  iter.pos++
+  return iter.tokens[iter.pos]
+}
+
+func (iter *tokenIterator) unread() Token {
+  iter.pos--
+  return iter.tokens[iter.pos]
+}
+
 //-----------------------------------------------------
 // Parsing
 //-----------------------------------------------------
@@ -245,6 +264,7 @@ func Lex(str string) []Token {
 type nodeType string
 
 const (
+  CODE_CONTEXT_NODE nodeType = "CODE_CONTEXT"
   QUERY_NODE nodeType = "QUERY"
   SCAN_NODE = "SCAN"
   ADD_NODE = "ADD"
@@ -252,34 +272,114 @@ const (
   EXPRESSION_NODE = "EXPRESSION"
   CHOOSE_NODE = "CHOOSE"
   UNION_NODE = "UNION"
+  UNKNOWN_NODE = "UNKNOWN"
 )
 
 type node struct {
   nodeType nodeType
+  info map[string]string
+  line int
+  offset int
+}
+
+func newNode(nodeType nodeType, line int, offset int) node {
+  var info = make(map[string]string)
+  return node{nodeType, info, line, offset}
+}
+
+type line struct {
+  parent *line
+  children []*line
+  tokens []Token
+  rootNode node
+  line int
+  offset int
+}
+
+func (t line) String() string {
+  indent := ""
+  // for i := 0; i < t.offset + 1; i++ {
+  //   indent += " "
+  // }
+  childLines := ""
+  for _, child := range t.children {
+    childLines += child.String()
+  }
+	return fmt.Sprintf("\n%s %v %v%s", indent, t.line, tokensToString(t.tokens), childLines)
+}
+
+func newLine(parent *line, offset int, tokens []Token) line {
+  lineNum := -1
+  if len(tokens) > 0 {
+    lineNum = tokens[0].line
+  }
+  rootNode := newNode(UNKNOWN_NODE, lineNum, offset)
+  return line{parent, make([]*line,0), tokens, rootNode, lineNum, offset}
 }
 
 func tokensToString(tokens []Token) string {
   var bytes bytes.Buffer
   prevEnd := 0
   for _, token := range tokens {
-    for i := 0; i < token.char - prevEnd; i++ {
+    for i := 0; i < token.offset - prevEnd; i++ {
       bytes.WriteRune(' ')
     }
     bytes.WriteString(token.value)
-    prevEnd = token.char + len(token.value)
+    prevEnd = token.offset + len(token.value)
   }
   return bytes.String()
 }
 
-func parseLine(tokens []Token) {
-  if tokens[0].char == 0 {
-    line := tokensToString(tokens)
-    fmt.Println("header:", line)
+func latestContext(context []node) node {
+  var latestContext node
+  if len(context) > 0 {
+    latestContext = context[len(context)-1]
   }
+  return latestContext
 }
 
-func ParseTokens(tokens []Token) {
+func parseRootLevel(tokens []Token, queries []node, context[]node) []node {
+  latestContext := latestContext(context)
+  var query node
+  line := tokensToString(tokens)
+  fmt.Println("header:", line)
+  var newContext []node
+  if latestContext.nodeType != QUERY_NODE {
+    query = newNode(QUERY_NODE, tokens[0].line, tokens[0].offset)
+    query.info["name"] = line;
+    queries = append(queries, query)
+    newContext = append(newContext, query)
+  } else if latestContext.nodeType == QUERY_NODE {
+    // if we're already in a query node and at the top level, then we must be
+    // adding to the name
+    query = latestContext
+    query.info["name"] += "\n" + line
+    newContext = context
+  }
+  fmt.Println("Query: %v", query)
+  return newContext
+}
+
+func parseLine(tokens []Token, queries []node, context []node) []node {
+  latestContext := latestContext(context)
+  currentToken := tokens[0]
+  if currentToken.offset == 0 {
+    return parseRootLevel(tokens, queries, context)
+  }
+  if latestContext.nodeType == "" {
+    fmt.Printf(color.Error("Programs should start without leading indentation, line %v should be unindented.\n"), tokens[0].line)
+  }
+  return context
+}
+
+func ParseTokens(tokens []Token, info map[string]string) {
 	var token Token
+  // var queries []node
+  // var context []node
+  var codeContext = newLine(nil, -1, make([]Token,0))
+  codeContext.rootNode.nodeType = CODE_CONTEXT_NODE
+  codeContext.rootNode.info = info
+  parentLine := &codeContext
 	tokenLen := len(tokens)
 	for ix := 0; ix < tokenLen; ix++ {
 		startIx := ix
@@ -289,22 +389,39 @@ func ParseTokens(tokens []Token) {
 			ix++
 			token = tokens[ix]
 		}
-    parseLine(tokens[startIx:ix+1])
-		fmt.Printf("line %v goes from %v to %v\n", line, startIx, ix)
+    lineTokens := tokens[startIx:ix+1]
+    indent := lineTokens[0].offset
+    for parentLine != &codeContext && parentLine.offset >= indent {
+      parentLine = parentLine.parent
+    }
+    currentLine := newLine(parentLine, indent, lineTokens)
+    fmt.Println("Parent", parentLine)
+    fmt.Println("Child", currentLine)
+    parentLine.children = append(parentLine.children, &currentLine)
+    parentLine = &currentLine
+    // context = parseLine(, queries, context)
+    fmt.Printf("Line tree: %v\n", codeContext)
 		fmt.Printf("%v\n\n", tokens[startIx:ix+1])
 	}
+  fmt.Printf("Line tree: %v", codeContext)
 }
 
 func ParseString(code string) {
 		tokens := Lex(code)
-		ParseTokens(tokens)
+    info := make(map[string]string)
+    info["sourceType"] = "string"
+		ParseTokens(tokens, info)
 }
 
 func ParseFile(path string) {
 	content, err := ioutil.ReadFile(path)
 	if err == nil {
 		code := string(content)
-    ParseString(code)
+		tokens := Lex(code)
+    info := make(map[string]string)
+    info["sourceType"] = "file"
+    info["file"] = path
+		ParseTokens(tokens, info)
 	} else {
 		fmt.Printf(color.Error("Couldn't read file: %v"), path)
 	}

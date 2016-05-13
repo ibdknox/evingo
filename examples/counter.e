@@ -6,12 +6,12 @@ build the counter
         #div #count-button class: "button", text: "-", diff: -1
         #div            class: "count",  text: "{count}"
         #div #count-button class: "button", text: "+", diff: 1
-        
+
 increment the counter
   #click element
   #counter count
   #count-button element diff
-  update forever 
+  update forever
     counter
       count: count + diff
 

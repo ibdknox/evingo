@@ -3,4 +3,4 @@ NC='\033[0m'
 echo "\n"
 echo "${CYAN}------------------------------------------------${NC}"
 echo "\n"
-go build && ./evingo parse examples/strings.e
+go build && ./evingo parse examples/clock.e
