@@ -60,6 +60,10 @@ func (t Text) HashCode() uint32 {
 }
 
 func (t Text) String() string {
+	return "\"" + t.s + "\""
+}
+
+func (t Text) Value() string {
 	return t.s
 }
 
@@ -92,6 +96,10 @@ func (n Number) HashCode() uint32 {
 
 func (n Number) String() string {
 	return n.d.String()
+}
+
+func (n Number) Value() decimal.Decimal {
+	return n.d
 }
 
 func (n Number) Deserialize(source []byte, offset int) {
@@ -142,6 +150,10 @@ func (b Boolean) String() string {
 		return "true"
 	}
 	return "false"
+}
+
+func (b Boolean) Value() bool {
+	return b.b
 }
 
 func NewBoolean(b bool) Value {

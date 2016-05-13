@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/witheve/evingo/value"
+	"strconv"
 )
 
 type BindingNode struct {
@@ -79,6 +80,18 @@ type QueryNode struct {
 	chooses     []ChooseNode
 }
 
+func NewQuery() *QueryNode {
+	return &QueryNode{
+		name:        "",
+		variables:   make([]VariableNode, 0),
+		expressions: make([]ExpressionNode, 0),
+		scans:       make([]ScanNode, 0),
+		nots:        make([]NotNode, 0),
+		unions:      make([]UnionNode, 0),
+		chooses:     make([]ChooseNode, 0),
+	}
+}
+
 type FactNode struct {
 	entity    string
 	attribute string
@@ -125,12 +138,19 @@ type Entity struct {
 	attributes map[string]value.Value
 }
 
+func NewEntity(entity string) *Entity {
+	return &Entity{entity: entity, attributes: make(map[string]value.Value)}
+}
+
 func (entity Entity) String() string {
 	var result = "Entity<" + entity.entity + ">{"
 	for attr, val := range entity.attributes {
 		result += attr + ": " + val.String() + ", "
 	}
-	return result[:len(result)-2] + "}"
+	if len(entity.attributes) != 0 {
+		result = result[:len(result)-2]
+	}
+	return result + "}"
 }
 
 func FactsToEntities(factsPtr *[]FactNode) *[]Entity {
@@ -140,7 +160,7 @@ func FactsToEntities(factsPtr *[]FactNode) *[]Entity {
 	for _, fact := range facts {
 		var entity, ok = entityMap[fact.entity]
 		if !ok {
-			entity = &Entity{entity: fact.entity}
+			entity = NewEntity(fact.entity)
 			entityMap[fact.entity] = entity
 		}
 		entity.attributes[fact.attribute] = fact.value
@@ -157,16 +177,28 @@ func FactsToEntities(factsPtr *[]FactNode) *[]Entity {
 
 type TagMap map[string][]Entity
 
+func (tagMap TagMap) String() string {
+	result := "{\n"
+	for k, entities := range tagMap {
+		result += "  " + string(k) + ": [\n" // + item.String() + ",\n"
+		for i, item := range entities {
+			result += "    " + strconv.Itoa(i) + ": " + item.String() + ",\n"
+		}
+		result = result[:len(result)-2] + "\n  ],\n"
+	}
+	return result[:len(result)-2] + "\n}"
+}
+
 func GroupEntitiesByTag(entities *[]Entity) *TagMap {
 	var tagMap = make(TagMap)
 	var untagged = make([]Entity, 0)
 	for _, entity := range *entities {
 		var tagValue, ok = entity.attributes["tag"]
 		if ok {
-			var tag = tagValue.String()
+			var tag = tagValue.(*value.Text).Value()
 			var tagged, ok = tagMap[tag]
 			if !ok {
-				tagged = make([]Entity, 1)
+				tagged = make([]Entity, 0)
 				tagMap[tag] = tagged
 			}
 			tagMap[tag] = append(tagged, entity)
@@ -213,9 +245,12 @@ func SomeEntity(filter EntityFilter, entities []Entity) *Entity {
 }
 
 func TagMapToQueryGraph(tagMap *TagMap) *QueryNode {
-	var queryNode = &QueryNode{}
+	var queryNode = NewQuery()
 	var root = SomeEntity(EntityAttributeEquals("parent", nil), (*tagMap)["query"])
+	if root == nil {
+		panic("Unable to find root query!")
+	}
 	fmt.Println("query root entity", root.String())
-	queryNode.name = root.attributes["name"].String()
+	queryNode.name = root.attributes["name"].(*value.Text).Value()
 	return queryNode
 }
