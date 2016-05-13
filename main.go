@@ -8,6 +8,7 @@ import (
 	"github.com/witheve/evingo/value"
 	"io/ioutil"
 	"os"
+	"strconv"
 	//"strings"
 )
 
@@ -15,6 +16,13 @@ func panicOnError(e error) {
 	if e != nil {
 		panic(e)
 	}
+}
+
+type Stringer interface {
+	String() string
+}
+
+func pprintCollection(list *interface{}) {
 }
 
 func doDotStuff() {
@@ -45,20 +53,41 @@ func main() {
 			fmt.Println(color.Error("Must provide a file to parse"))
 		}
 	case args[1] == "load":
+		fmt.Println("Loading", args[2])
 		if argsLen > 2 {
 			data, err := ioutil.ReadFile(args[2])
 			panicOnError(err)
 			var facts = ReadFactsFromJson(data)
-			fmt.Println("---FACTS---")
-			fmt.Println(facts)
+			if true {
+				fmt.Println("---FACTS---")
+				result := "[\n"
+				for k, item := range *facts {
+					result += "  " + strconv.Itoa(k) + ": " + item.String() + ",\n"
+				}
+				fmt.Println(result[:len(result)-2] + "\n]")
+			}
 
 			var entities = FactsToEntities(facts)
-			fmt.Println("---ENTITIES---")
-			fmt.Println(entities)
+			if true {
+				fmt.Println("---ENTITIES---")
+				result := "[\n"
+				for k, item := range *entities {
+					result += "  " + strconv.Itoa(k) + ": " + item.String() + ",\n"
+				}
+				fmt.Println(result[:len(result)-2] + "\n]")
+			}
 
 			var tagMap = GroupEntitiesByTag(entities)
-			fmt.Println("---TAG MAP---")
-			fmt.Println(tagMap)
+			if true {
+				fmt.Println("---TAG MAP---")
+				fmt.Println(tagMap.String())
+			}
+
+			var query = TagMapToQueryGraph(tagMap)
+			if true {
+				fmt.Println("---QUERY GRAPH---")
+				fmt.Println(query)
+			}
 
 			//scanner := bufio.NewScanner(os.Stdin)
 			//for scanner.Scan() {
@@ -70,5 +99,4 @@ func main() {
 			fmt.Println(color.Error("Must provide a file to load"))
 		}
 	}
-
 }
