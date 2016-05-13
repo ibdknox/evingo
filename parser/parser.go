@@ -242,18 +242,39 @@ func Lex(str string) []Token {
 // Parsing
 //-----------------------------------------------------
 
+type nodeType string
+
+const (
+  QUERY_NODE nodeType = "QUERY"
+  SCAN_NODE = "SCAN"
+  ADD_NODE = "ADD"
+  REMOVE_NODE = "REMOVE"
+  EXPRESSION_NODE = "EXPRESSION"
+  CHOOSE_NODE = "CHOOSE"
+  UNION_NODE = "UNION"
+)
+
+type node struct {
+  nodeType nodeType
+}
+
+func tokensToString(tokens []Token) string {
+  var bytes bytes.Buffer
+  prevEnd := 0
+  for _, token := range tokens {
+    for i := 0; i < token.char - prevEnd; i++ {
+      bytes.WriteRune(' ')
+    }
+    bytes.WriteString(token.value)
+    prevEnd = token.char + len(token.value)
+  }
+  return bytes.String()
+}
+
 func parseLine(tokens []Token) {
   if tokens[0].char == 0 {
-    var bytes bytes.Buffer
-    prevEnd := 0
-    for _, token := range tokens {
-      for i := 0; i < token.char - prevEnd; i++ {
-        bytes.WriteRune(' ')
-      }
-      bytes.WriteString(token.value)
-      prevEnd = token.char + len(token.value)
-    }
-    fmt.Println("header:", bytes.String())
+    line := tokensToString(tokens)
+    fmt.Println("header:", line)
   }
 }
 
