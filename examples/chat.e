@@ -1,31 +1,24 @@
 build the chat pane
   #chat-pane channel
   add
-    chat-pane
-      #div
-      class: "chat-pane"
+    #div class: "chat-pane"
       children:
         #div class: "chat-messages" id: "{channel}-chat-messages"
-        #input keydown: "chat-input-keydown"
-          info-chat-channel: channel
+        #input#channel-input channel
 
 draw messages
   #message name time message channel
   add
-    #div
-      parent: "{chat-pane}-chat-messages"
-      class: "chat-message"
+    #div parent: "{channel}-chat-messages", class: "chat-message"
       children:
-        #div class: "chat-user" text: "{name}"
-        #div class: "chat-message"    text: "{message}"
+        #div class: "chat-user", text: "{name}"
+        #div class: "chat-message", text: "{message}"
 
 handle chat keydowns
-  #chat-input-keydown value info-channel: channel
-  #keyboard pressed: "enter"
+  #keydown element, key: "enter"
+  #channel-input: element, value, channel
   #user name
+  update
+    element.value = ""
   add forever
-    #message 
-      name
-      time: printTime 
-      message: value 
-      channel
+    #message name, time: printTime, message: value, channel
