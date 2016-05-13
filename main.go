@@ -12,8 +12,9 @@ import (
 	//"strings"
 )
 
-func panicOnError(e error) {
+func panicOnError(e error, msg string) {
 	if e != nil {
+		fmt.Println("ERROR: " + msg)
 		panic(e)
 	}
 }
@@ -56,7 +57,7 @@ func main() {
 		fmt.Println("Loading", args[2])
 		if argsLen > 2 {
 			data, err := ioutil.ReadFile(args[2])
-			panicOnError(err)
+			panicOnError(err, "Invalid JSON file '"+args[2]+"'")
 			var facts = ReadFactsFromJson(data)
 			if true {
 				fmt.Println("---FACTS---")
@@ -77,7 +78,7 @@ func main() {
 				fmt.Println(result[:len(result)-2] + "\n]")
 			}
 
-			var tagMap = GroupEntitiesByTag(entities)
+			var tagMap = IndexEntitiesByTag(entities)
 			if true {
 				fmt.Println("---TAG MAP---")
 				fmt.Println(tagMap.String())
@@ -86,7 +87,7 @@ func main() {
 			var query = TagMapToQueryGraph(tagMap)
 			if true {
 				fmt.Println("---QUERY GRAPH---")
-				fmt.Println(query)
+				fmt.Printf("%#v", query)
 			}
 
 			//scanner := bufio.NewScanner(os.Stdin)
