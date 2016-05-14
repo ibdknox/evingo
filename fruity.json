@@ -88,7 +88,7 @@
 
 
   ["e1", "tag", "expression"],
-  ["e1", "expression", "q1"],
+  ["e1", "query", "q1"],
   ["e1", "operator", "not="],
 
   ["e1b1", "field", "a"],
