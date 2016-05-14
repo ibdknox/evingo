@@ -72,7 +72,7 @@ func main() {
 			if true {
 				fmt.Println("---ENTITIES---")
 				result := "[\n"
-				for k, item := range *entities {
+				for k, item := range entities {
 					result += "  " + strconv.Itoa(k) + ": " + item.String() + ",\n"
 				}
 				fmt.Println(result[:len(result)-2] + "\n]")
@@ -87,7 +87,7 @@ func main() {
 			var query = TagMapToQueryGraph(tagMap)
 			if true {
 				fmt.Println("---QUERY GRAPH---")
-				fmt.Printf("%#v", query)
+				fmt.Println(query.String())
 			}
 
 			//scanner := bufio.NewScanner(os.Stdin)
