@@ -30,7 +30,7 @@ func (u Uuid) Deserialize(source []byte, offset int) {
 }
 
 func (u Uuid) Equals(v interface{}) bool {
-	if u2, ok := v.(Uuid); ok {
+	if u2, ok := v.(*Uuid); ok {
 		return (u.top == u2.top) && (u.bottom == u2.bottom)
 	}
 	return false
@@ -49,7 +49,7 @@ type Text struct {
 }
 
 func (t Text) Equals(v interface{}) bool {
-	if t2, ok := v.(Text); ok {
+	if t2, ok := v.(*Text); ok {
 		return t.s == t2.s
 	}
 	return false
@@ -84,7 +84,7 @@ type Number struct {
 }
 
 func (n Number) Equals(v interface{}) bool {
-	if t2, ok := v.(Number); ok {
+	if t2, ok := v.(*Number); ok {
 		return n.d == t2.d
 	}
 	return false
@@ -131,7 +131,7 @@ type Boolean struct {
 }
 
 func (b Boolean) Equals(v interface{}) bool {
-	if b2, ok := v.(Boolean); ok {
+	if b2, ok := v.(*Boolean); ok {
 		return b.b == b2.b
 	}
 	return false
