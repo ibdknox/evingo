@@ -1,0 +1,310 @@
+[
+  ["q1", "tag", "query"],
+  ["q1", "name", "harness"],
+
+  ["test", "tag", "variable"],
+  ["test", "query", "q1"],
+  ["test", "name", "Test!!"],
+
+  ["eavs", "tag", "variable"],
+  ["eavs", "query", "q1"],
+  ["eavs", "name", "eavs"],
+
+  ["expected", "tag", "variable"],
+  ["expected", "query", "q1"],
+  ["expected", "name", "expected"],
+
+  ["expected-attr", "tag", "variable"],
+  ["expected-attr", "query", "q1"],
+  ["expected", "name", "expected attribute"],
+
+  ["expected-value", "tag", "variable"],
+  ["expected-value", "query", "q1"],
+  ["expected-value", "name", "expected value"],
+
+
+  ["s1", "tag", "scan"],
+  ["s1", "query", "q1"],
+
+  ["s1b1", "tag", "binding"],
+  ["s1b1", "source", "s1"],
+  ["s1b1", "field", "tag"],
+  ["s1b1", "constant", "expected"],
+
+  ["s1b2", "tag", "binding"],
+  ["s1b2", "source", "s1"],
+  ["s1b2", "field", "$$ENTITY"],
+  ["s1b2", "variable", "expected"],
+
+  ["s1b3", "tag", "binding"],
+  ["s1b3", "source", "s1"],
+  ["s1b3", "field", "test"],
+  ["s1b3", "variable", "test"],
+
+
+  ["s2", "tag", "scan"],
+  ["s2", "query", "q1"],
+
+  ["s2b1", "tag", "binding"],
+  ["s2b1", "source", "s2"],
+  ["s2b1", "field", "tag"],
+  ["s2b1", "constant", "eavs"],
+
+  ["s2b2", "tag", "binding"],
+  ["s2b2", "source", "s2"],
+  ["s2b2", "field", "$$ENTITY"],
+  ["s2b2", "variable", "eavs"],
+
+  ["s2b3", "tag", "binding"],
+  ["s2b3", "source", "s2"],
+  ["s2b3", "field", "entity"],
+  ["s2b3", "variable", "expected"],
+
+  ["s2b4", "tag", "binding"],
+  ["s2b4", "source", "s2"],
+  ["s2b4", "field", "attribute"],
+  ["s2b4", "variable", "expected-attr"],
+
+  ["s2b5", "tag", "binding"],
+  ["s2b5", "source", "s2"],
+  ["s2b5", "field", "value"],
+  ["s2b5", "variable", "expected-value"],
+
+
+  ["e1", "tag", "expression"],
+  ["e1", "operator", "count"],
+
+  ["e1b1", "tag", "binding"],
+  ["e1b1", "source", "e1"],
+  ["e1b1", "field", "0"],
+  ["e1b1", "variable", "expected-count"],
+
+  ["e1p1", "tag", "projection"],
+  ["e1p1", "expression", "e1"],
+  ["e1p1", "variable", "expected"],
+
+  ["e1p2", "tag", "projection"],
+  ["e1p2", "expression", "e1"],
+  ["e1p2", "variable", "expected-attr"],
+
+  ["e1p3", "tag", "projection"],
+  ["e1p3", "expression", "e1"],
+  ["e1p3", "variable", "expected-value"],
+
+  ["e1g1", "tag", "grouping"],
+  ["e1g1", "expression", "e1"],
+  ["e1g1", "ix", 0],
+  ["e1g1", "variable", "test"],
+
+
+
+
+  ["choose1-1", "tag", "query"],
+
+  ["test", "query", "choose1-1"],
+
+  ["expected2", "tag", "variable"],
+  ["expected2", "query", "choose1-1"],
+  ["expected2", "query", "q1"],
+  ["expected2", "name", "expected2"],
+
+  ["eavs2", "tag", "variable"],
+  ["eavs2", "query", "choose1-1"],
+  ["eavs2", "query", "q1"],
+  ["eavs2", "name", "eavs 2"],
+
+  ["result", "tag", "variable"],
+  ["result", "query", "choose1-1"],
+  ["result", "query", "q1"],
+  ["result", "name", "result"],
+
+  ["attribute", "tag", "variable"],
+  ["attribute", "query", "choose1-1"],
+  ["attribute", "query", "q1"],
+  ["attribute", "name", "attribute"],
+
+  ["value", "tag", "variable"],
+  ["value", "query", "choose1-1"],
+  ["value", "query", "q1"],
+  ["value", "name", "value"],
+
+  ["actual-count", "tag", "variable"],
+  ["actual-count", "query", "choose1-1"],
+  ["actual-count", "query", "q1"],
+  ["actual-count", "name", "actual-count"],
+
+  ["succeeded", "tag", "variable"],
+  ["succeeded", "query", "choose1-1"],
+  ["succeeded", "query", "q1"],
+  ["succeeded", "name", "succeeded"],
+
+
+  ["s3", "tag", "scan"],
+  ["s3", "query", "choose1-1"],
+
+  ["s3b1", "tag", "binding"],
+  ["s3b1", "source", "s3"],
+  ["s3b1", "field", "tag"],
+  ["s3b1", "constant", "result"],
+
+  ["s3b2", "tag", "binding"],
+  ["s3b2", "source", "s3"],
+  ["s3b2", "field", "$$ENTITY"],
+  ["s3b2", "variable", "result"],
+
+  ["s3b3", "tag", "binding"],
+  ["s3b3", "source", "s3"],
+  ["s3b3", "field", "test"],
+  ["s3b3", "variable", "test"],
+
+
+  ["s4", "tag", "scan"],
+  ["s4", "query", "choose1-1"],
+
+  ["s4b1", "tag", "binding"],
+  ["s4b1", "source", "s4"],
+  ["s4b1", "field", "tag"],
+  ["s4b1", "constant", "expected"],
+
+  ["s4b2", "tag", "binding"],
+  ["s4b2", "source", "s4"],
+  ["s4b2", "field", "$$ENTITY"],
+  ["s4b2", "variable", "eavs2"],
+
+  ["s4b3", "tag", "binding"],
+  ["s4b3", "source", "s4"],
+  ["s4b3", "field", "entity"],
+  ["s4b3", "variable", "result"],
+
+  ["s4b4", "tag", "binding"],
+  ["s4b4", "source", "s4"],
+  ["s4b4", "field", "attribute"],
+  ["s4b4", "variable", "attribute"],
+
+  ["s4b5", "tag", "binding"],
+  ["s4b5", "source", "s4"],
+  ["s4b5", "field", "value"],
+  ["s4b5", "variable", "value"],
+
+
+  ["s5", "tag", "scan"],
+  ["s5", "query", "choose1-1"],
+
+  ["s5b1", "tag", "binding"],
+  ["s5b1", "source", "s5"],
+  ["s5b1", "field", "tag"],
+  ["s5b1", "constant", "expected"],
+
+  ["s5b2", "tag", "binding"],
+  ["s5b2", "source", "s5"],
+  ["s5b2", "field", "$$ENTITY"],
+  ["s5b2", "variable", "expected2"],
+
+  ["s5b3", "tag", "binding"],
+  ["s5b3", "source", "s5"],
+  ["s5b3", "field", "test"],
+  ["s5b3", "variable", "test"],
+
+
+  ["s6", "tag", "scan"],
+  ["s6", "query", "choose1-1"],
+
+  ["s6b1", "tag", "binding"],
+  ["s6b1", "source", "s6"],
+  ["s6b1", "field", "tag"],
+  ["s6b1", "constant", "eavs"],
+
+  ["s6b2", "tag", "binding"],
+  ["s6b2", "source", "s6"],
+  ["s6b2", "field", "$$ENTITY"],
+  ["s6b2", "variable", "eavs2"],
+
+  ["s6b3", "tag", "binding"],
+  ["s6b3", "source", "s6"],
+  ["s6b3", "field", "entity"],
+  ["s6b3", "variable", "expected2"],
+
+  ["s6b4", "tag", "binding"],
+  ["s6b4", "source", "s6"],
+  ["s6b4", "field", "attribute"],
+  ["s6b4", "variable", "attribute"],
+
+  ["s6b5", "tag", "binding"],
+  ["s6b5", "source", "s6"],
+  ["s6b5", "field", "value"],
+  ["s6b5", "variable", "value"],
+
+
+  ["e2", "tag", "expression"],
+  ["e2", "operator", "count"],
+
+  ["e2b1", "tag", "binding"],
+  ["e2b1", "source", "e2"],
+  ["e2b1", "field", "0"],
+  ["e2b1", "variable", "actual-count"],
+
+  ["e2p1", "tag", "projection"],
+  ["e2p1", "expression", "e2"],
+  ["e2p1", "variable", "result"],
+
+  ["e2p2", "tag", "projection"],
+  ["e2p2", "expression", "e2"],
+  ["e2p2", "variable", "attribute"],
+
+  ["e2p3", "tag", "projection"],
+  ["e2p3", "expression", "e2"],
+  ["e2p3", "variable", "value"],
+
+  ["e2g1", "tag", "grouping"],
+  ["e2g1", "expression", "e2"],
+  ["e2g1", "ix", 0],
+  ["e2g1", "variable", "test"],
+
+
+  ["e3", "tag", "expression"],
+  ["e3", "operator", "="],
+
+  ["e3b1", "tag", "binding"],
+  ["e3b1", "source", "e3"],
+  ["e3b1", "field", "0"],
+  ["e3b1", "variable", "actual-count"],
+
+  ["e3b1", "tag", "binding"],
+  ["e3b1", "source", "e3"],
+  ["e3b1", "field", "1"],
+  ["e3b1", "variable", "expected-count"],
+
+
+  ["e4", "tag", "expression"],
+  ["e4", "operator", "set"],
+
+  ["e4b1", "tag", "binding"],
+  ["e4b1", "source", "e4"],
+  ["e4b1", "field", "0"],
+  ["e4b1", "variable", "succeeeded"],
+
+  ["e4b1", "tag", "binding"],
+  ["e4b1", "source", "e4"],
+  ["e4b1", "field", "1"],
+  ["e4b1", "constant", true],
+
+
+
+
+  ["choose1-2", "tag", "query"],
+
+  ["succeeded", "query", "choose1-2"],
+
+  ["e5", "tag", "expression"],
+  ["e5", "operator", "set"],
+
+  ["e5b1", "tag", "binding"],
+  ["e5b1", "source", "e5"],
+  ["e5b1", "field", "0"],
+  ["e5b1", "variable", "succeeeded"],
+
+  ["e5b1", "tag", "binding"],
+  ["e5b1", "source", "e5"],
+  ["e5b1", "field", "1"],
+  ["e5b1", "constant", true]
+]
