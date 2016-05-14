@@ -1,7 +1,8 @@
 draw a clock hand
   #clock-hand
     angle
-    update
+  add
+    clock-hand
       #line
       x1: 50, y1: 50, stroke: "#023963"
       x2: 50 + 40 * cos(angle)
@@ -12,9 +13,9 @@ draw a clock
   add
     #svg
       viewBox: "0 0 100 100" width: "300px{zomg}"
-      child:
+      children:
         #circle cx: 50, cy: 50, r: 45, fill: "#0B79CE"
-          child:
+          children:
             #clock-hand angle: 30 * hours
             #clock-hand angle: 6 * minutes
             #clock-hand angle: 6 * seconds

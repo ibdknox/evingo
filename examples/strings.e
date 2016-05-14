@@ -1,4 +1,5 @@
-string tests
+string tests even with multi-line
+query names
   #person
     name = "hello dude\"aodifj"
     age
